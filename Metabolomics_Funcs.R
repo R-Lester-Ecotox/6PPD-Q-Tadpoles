@@ -97,6 +97,41 @@ calculate_baseline <- function(data, pattern = "Recon") {
   baseline
 }
 
+# Removes metabolites from analysis that have excessive detection in blanks
+# Uses a pattern in dataframe names to detect blanks ("Proc" by default).
+# The condition for removing a metabolite is if the blanks' mean is greater than
+# or equal to a fraction of the mean of the actual samples. 1/5 mean is default.
+
+remove_noisy_baseline <- function(
+    data, cols,
+    pattern = "Proc",
+    threshold = 0.2) {
+  # Removes any column names that are not present in names(data)
+  clean <- cleanup_cols(data = data, cols = cols)
+  # Find names of baseline columns
+  baseline_cols <- names(data)[str_detect(names(data), pattern)]
+  # Error checking
+  if(length(baseline_cols) < 1) {
+    warning("`pattern` does not match any columns. Returning `data` unchanged.")
+    return(data)
+  }
+  # Isolate the data columns as their own dataframe
+  metabolites <- data %>% 
+    select(any_of(clean)) %>% 
+    # Calculate the mean of each row multiplied by the threshold
+    rowMeans(na.rm = TRUE) * threshold
+  # Isolate the baseline columns as their own dataframe
+  baseline <- data %>% 
+    select(all_of(baseline_cols)) %>% 
+    # Calculate the mean of each row
+    replace(is.na(.), 0) %>% 
+    rowMeans()
+  # Work out which metabolites to keep
+  logic <- !baseline > metabolites
+  # Filter the data based on `logic`
+  result <- data[logic, ]
+} 
+
 # Subtracts the baseline from each column
 # Baseline should be a named vector with names equivalent to the columns you
 # want to correct

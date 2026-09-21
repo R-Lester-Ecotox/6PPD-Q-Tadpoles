@@ -6,12 +6,12 @@ data_cols_CCM <- names(CCM)[!data_cols_CCM_logic]
 
 # Pre-process CCM data
 CCM_processed <- CCM %>%
-  mutate(baseline = calculate_baseline(., pattern = "NoInj")) %>% 
-  subtract_baseline(cols = data_cols_CCM, baseline_col = "baseline") %>%
   mutate(baseline = calculate_baseline(., pattern = "Recon")) %>% 
   subtract_baseline(cols = data_cols_CCM, baseline_col = "baseline") %>%
   low_count_filter(cols = data_cols_CCM, threshold = 300) %>%
-  mutate(Method = "CCM_QQQ", Type = "Metabolite", .after = 1)
+  mutate(Method = "CCM_QQQ", Type = "Metabolite", .after = 1) %>%
+  select(-contains(c("AAOA", "Recon", "PBQC"))) %>% 
+  filter(! Name %in% names$isotopic)
 
 # Print error checking
 print("CCM_6PPDQ.R ran succesfully")

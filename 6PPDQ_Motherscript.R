@@ -42,9 +42,6 @@ source(file = "Import_6PPDQ.R")
 # Caclulates unviariate statistics for tadpoles' physical traits
 source(file = "Univariate_Tadpole_Physical.R")
 
-# Calculates relative standard deviations and stores in a nice list
-# source(file = "RSD_6PPDQ.R")
-
 # Pretreats QToF metabolite data
 source(file = "QToF_Metabo_6PPDQ.R")
 

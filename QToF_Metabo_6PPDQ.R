@@ -9,19 +9,17 @@ data_cols_qtof_metabo <-
 QToF_Metabo_processed <-
   POS_NEG_Merge(
     pos_mode_data = QToF_Metabo_POS,
-    neg_mode_data = QToF_Metabo_NEG) %>%
-  NA_2_Unknown() %>%
-  remove_low_scores(scores = .$`Score(MFE,max)`, threshold = 80) %>%
-  remove_high_mass_error(masserror = .$`RSD(Mass, ppm)`) %>%
-  mutate(baseline1 = calculate_baseline(., pattern = "NoInj")) %>%
-  subtract_baseline(cols = data_cols_qtof_metabo, baseline_col = "baseline1") %>%
-  mutate(baseline2 = calculate_baseline(., pattern = "Recon")) %>% 
-  subtract_baseline(cols = data_cols_qtof_metabo, baseline_col = "baseline2") %>% 
-  sum_same_metabolites(cols = data_cols_qtof_metabo) %>%
+    neg_mode_data = QToF_Metabo_NEG) %>%  # 24387
+  filter(! is.na(Name)) %>% # 5324
+  remove_high_mass_error(masserror = .$`RSD(Mass, ppm)`) %>% # 4182
+  remove_noisy_baseline(cols = data_cols_qtof_metabo, pattern = "Recon") %>% # 1857
+  mutate(baseline = calculate_baseline(., pattern = "Recon")) %>% 
+  subtract_baseline(cols = data_cols_qtof_metabo, baseline_col = "baseline") %>% 
+  sum_same_metabolites(cols = data_cols_qtof_metabo) %>% # 1322
   low_count_filter(cols = data_cols_qtof_metabo) %>%
   dplyr::select(contains(c("Name", "Method", "Tadpole"))) %>%
+  dplyr::select(-contains(c("Recon", "AAOA", "NoInj"))) %>% 
   mutate(Type = "Metabolite", .after = 2)
-
 
 # Print debugging
 print("QToF_Metabo_6PPDQ.R ran successfully")
