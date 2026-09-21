@@ -1,0 +1,6 @@
+*.csv
+*.tsv
+*.xlsx
+*.png
+\permanova
+Deleted_code.R
