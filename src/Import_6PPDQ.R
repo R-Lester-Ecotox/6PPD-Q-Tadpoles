@@ -7,14 +7,14 @@ read_qtof_tsv <- function(filename) {
     dplyr::select(-contains("injection"))
 }
 
-QToF_Metabo_NEG <- read_qtof_tsv("Tadpole_QToF_NEG.tsv")
-QToF_Metabo_POS <- read_qtof_tsv("Tadpole_QToF_POS.tsv")
-QToF_Lipid_NEG <- read_qtof_tsv("Tadpole_Lipid_NEG.tsv")
-QToF_Lipid_POS <- read_qtof_tsv("Tadpole_Lipid_POS.tsv")
+QToF_Metabo_NEG <- read_qtof_tsv("data/Tadpole_QToF_NEG.tsv")
+QToF_Metabo_POS <- read_qtof_tsv("data/Tadpole_QToF_POS.tsv")
+QToF_Lipid_NEG <- read_qtof_tsv("data/Tadpole_Lipid_NEG.tsv")
+QToF_Lipid_POS <- read_qtof_tsv("data/Tadpole_Lipid_POS.tsv")
 
-names <- read_csv("metabolites_harmonised.csv")
+names <- read_csv("data/metabolites_harmonised.csv")
 
-CCM <- read_csv("Tadpoles_QQQ_Metabolites.csv") %>% 
+CCM <- read_csv("data/Tadpoles_QQQ_Metabolites.csv") %>% 
   t() %>% 
   as.data.frame() %>% 
   row_to_names(1) %>%
@@ -26,6 +26,6 @@ CCM <- read_csv("Tadpoles_QQQ_Metabolites.csv") %>%
 
 factor_order <- c("Control", "Solvent", "Low", "High")
 
-metadata <- read_csv("tadpole.csv")
+metadata <- read_csv("data/tadpole.csv")
 
 print("Import_6PPDQ.R ran succesfully")

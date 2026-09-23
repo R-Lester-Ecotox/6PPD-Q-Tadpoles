@@ -126,7 +126,7 @@ PCA_all_plots
 px <- 1500
 
 CairoPNG(
-  filename = "PCA.png",
+  filename = "plots/PCA.png",
   width = px * 1.5,
   height = px,
   units = "px",

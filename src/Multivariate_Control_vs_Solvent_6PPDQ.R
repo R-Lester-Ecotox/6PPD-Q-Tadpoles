@@ -120,7 +120,7 @@ CS_PCA_all_plots
 px <- 1500
 
 CairoPNG(
-  filename = "Control_vs_Solvent_PCA.png",
+  filename = "plots/Control_vs_Solvent_PCA.png",
   width = px * 1.5,
   height = px,
   units = "px",

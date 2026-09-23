@@ -40,6 +40,9 @@ long_no_control <- long %>%
 # Set bootstrap count
 boots = 5000
 
+# NOT RUN - bootstrapped tests take a lot of compute. I have computed this once
+# and load from a CSV normally.
+
 # # Run a 20% bootstrapped trimmed mean 1-way ANOVA test for each metabolite
 # anovas_trimmed_bt <- trimmed_mean_1way_aov_bt_parallel(
 #   data = long_no_control,
@@ -51,7 +54,7 @@ boots = 5000
 # # Save trimmed mean results as CSV
 # write.csv(anovas_trimmed_bt, "trimmed_anova_results_1.csv")
 
-anovas_trimmed_bt <- read.csv("trimmed_anova_results.csv")
+anovas_trimmed_bt <- read.csv("results/trimmed_anova_results_1.csv")
 
 # Sort for significant ANOVAs
 significant_anovas <- anovas_trimmed_bt %>% 

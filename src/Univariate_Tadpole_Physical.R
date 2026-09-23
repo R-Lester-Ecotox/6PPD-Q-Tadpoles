@@ -67,8 +67,8 @@ for(var in physical_data_cols) {
 physical_summary_stats <- bind_rows(physical_summary_stats)
 
 # Save the results to CSV
-write.csv(physical_kw, "physical_kruskal-wallis.csv")
-write.csv(physical_summary_stats, "physical_summary_stats.csv")
+write.csv(physical_kw, "results/physical_kruskal-wallis.csv")
+write.csv(physical_summary_stats, "results/physical_summary_stats.csv")
 
 # # Post-hoc testing ----
 # # <NOT RUN> as Gosner stage isn't significant when "Control" is filtered out

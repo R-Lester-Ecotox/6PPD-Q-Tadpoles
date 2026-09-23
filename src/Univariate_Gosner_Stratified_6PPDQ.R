@@ -20,17 +20,12 @@ GS34_long <- GS34_merged[, 4: ncol(GS34_merged)] %>%
          Tank = c(1:length(GS34_grouping))) %>% 
   relocate(Treatment, Tank, .before = 1)
 
-# Subset long for testing DELETE BEFORE FINAL
-subset_val <- 100
-
-GS34_long <- GS34_long[, 1:(subset_val + 2)]
-
 # Isolate data columns from `long`
 GS34_long_data_cols <- GS34_long %>%
   dplyr::select(-any_of(c("Treatment", "Tank"))) %>%
   names()
 
-# Run a 20% bootstrapped trimmed mean 1-way ANOVA test for each metabolite. MODIFY BEFORE FINAL
+# # Run a 20% bootstrapped trimmed mean 1-way ANOVA test for each metabolite. MODIFY BEFORE FINAL
 # GS34_anovas_trimmed_bt <- trimmed_mean_1way_aov_bt_parallel(
 #   data = long_no_control,
 #   cols = long_data_cols,
@@ -39,7 +34,7 @@ GS34_long_data_cols <- GS34_long %>%
 # )
 # 
 # write_csv(GS34_anovas_trimmed_bt, "trimmed_anova_gosner_stratified.csv")
-GS34_anovas_trimmed_bt <- read_csv("trimmed_anova_gosner_stratified.csv")
+GS34_anovas_trimmed_bt <- read_csv("results/trimmed_anova_gosner_stratified.csv")
 
 # Sort for significant ANOVAs
 GS34_significant_anovas <- GS34_anovas_trimmed_bt %>% 
@@ -48,30 +43,28 @@ GS34_significant_anovas <- GS34_anovas_trimmed_bt %>%
     Method = NA_character_,
     Type = NA_character_
   )
-
-# Lookup and attach the method (i.e. QToF/QQQ) and type (Metabolite/Lipid)
-for(x in 1:nrow(GS34_significant_anovas)) {
-  GS34_significant_anovas$Method[x] <- 
-    merged$Method[merged$Name == GS34_significant_anovas$variable[x]]
-  
-  GS34_significant_anovas$Type[x]  <- 
-    merged$Type[merged$Name == GS34_significant_anovas$variable[x]]
-}
-
-# Post hoc testing ----
-GS34_sig_metabs <- GS34_significant_anovas$variable
-
-
-# Run WRS2::mcppb20 on all significant ANOVAs
-GS34_post_hoc_results <- one_way_mcppb20(
-  metabolites = GS34_sig_metabs,
-  data = long_no_control
-)
-
-# Isolate the results
-GS34_post_hocs <- GS34_post_hoc_results$post_hocs
-GS34_clds <- GS34_post_hoc_results$clds
-
-
+# NOT RUN: No significant ANOVAs so post-hoc testing is unnecessary
+# # Lookup and attach the method (i.e. QToF/QQQ) and type (Metabolite/Lipid)
+# for(x in 1:nrow(GS34_significant_anovas)) {
+#   GS34_significant_anovas$Method[x] <- 
+#     merged$Method[merged$Name == GS34_significant_anovas$variable[x]]
+#   
+#   GS34_significant_anovas$Type[x]  <- 
+#     merged$Type[merged$Name == GS34_significant_anovas$variable[x]]
+# }
+# 
+# # Post hoc testing ----
+# GS34_sig_metabs <- GS34_significant_anovas$variable
+# 
+# 
+# # Run WRS2::mcppb20 on all significant ANOVAs
+# GS34_post_hoc_results <- one_way_mcppb20(
+#   metabolites = GS34_sig_metabs,
+#   data = long_no_control
+# )
+# 
+# # Isolate the results
+# GS34_post_hocs <- GS34_post_hoc_results$post_hocs
+# GS34_clds <- GS34_post_hoc_results$clds
 
 print("Unviariate_Gosner_Stratified_6PPDQ.R ran succesfully")
