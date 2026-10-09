@@ -1,29 +1,10 @@
-
-# ---- Helpers ---------------------------------------------------------
-
-#' Report on the reliability of an NMDS stress value
-check_stress <- function(stress) {
-  msg <- sprintf("NMDS stress = %.4f", stress)
-  if (stress >= 0.20) {
-    warning(msg, " - above the unreliability threshold of 0.20.",
-            call. = FALSE)
-  } else if (stress >= 0.10) {
-    message(msg, " - okay. Broad interpretation only.")
-  } else if (stress >= 0.05) {
-    message(msg, " - good. Safe to interpret clusters.")
-  } else {
-    message(msg, " - extremely low! Layout is basically exact.")
-  }
-  invisible(stress)
-}
-
-#' PERMANOVA + dispersion check + NMDS ordination plot for one grouping
+#' PERMANOVA + dispersion check + PCA ordination plot for one grouping
 #' variable.
 #'
 #' @param group_var Column name in `data` (character, backticks not needed).
 #' @param data Sample metadata, one row per sample, in the same order as `d`.
 #' @param d A `dist` object of between-sample distances.
-#' @param nmds_fit A fitted `metaMDS` object built from the same samples.
+#' @param pca_fit A `prcomp` object.
 #' @param perm_count Number of permutations.
 #' @param out_dir Directory for the CSV and PNG outputs.
 #' @param plot_title Optional plot title; defaults to "<group_var> ...".
@@ -31,20 +12,21 @@ check_stress <- function(stress) {
 #'   `group_var`.
 #' @return Invisibly, a list with the PERMANOVA table, dispersion test,
 #'   variance explained and output paths.
-permanova_by_group <- function(group_var,
-                               data,
-                               d,
-                               nmds_fit,
-                               perm_count = 9999,
-                               out_dir     = ".",
-                               plot_title  = NULL,
-                               file_prefix = NULL,
-                               xlim   = NULL,
-                               ylim   = NULL,
-                               width  = 1800,
-                               height = 1800,
-                               dpi    = 300,
-                               palette = NULL) {
+permanova_by_group <- function(
+    group_var,
+    data,
+    d,
+    pca_fit,
+    perm_count = 9999,
+    out_dir = ".",
+    plot_title = NULL,
+    file_prefix = NULL,
+    xlim = NULL,
+    ylim = NULL,
+    width = 1800,
+    height = 1800,
+    dpi = 300,
+    palette = NULL) {
   
   stopifnot(is.character(group_var), length(group_var) == 1L)
   if (!group_var %in% names(data)) {
@@ -59,7 +41,7 @@ permanova_by_group <- function(group_var,
     file_prefix <- gsub("^_|_$", "", gsub("[^A-Za-z0-9]+", "_", group_var))
   }
   if (is.null(plot_title)) {
-    plot_title <- paste(group_var, "NMDS Ordination")
+    plot_title <- paste(group_var, "PCA Ordination")
   }
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   
@@ -78,7 +60,7 @@ permanova_by_group <- function(group_var,
   # Subset the distance matrix if any samples were dropped
   d_sub <- if (all(keep)) {d} else {stats::as.dist(as.matrix(d)[keep, keep])}
   
-  # -- PERMANOVA -------------------------------------------------------
+  # PERMANOVA ----
   fit_data <- data.frame(grp = groups)
   permanova_model <- adonis2(d_sub ~ grp,
                              data         = fit_data,
@@ -92,7 +74,7 @@ permanova_by_group <- function(group_var,
   
   var_explained <- res$R2[1] * 100
   
-  # -- Dispersion check ------------------------------------------------
+  # Dispersion check ----
   bd <- permutest(betadisper(d_sub, groups), permutations = perm_count)
   
   res$dispersion_p_val <- c(bd$tab[["Pr(>F)"]][1],
@@ -113,8 +95,8 @@ permanova_by_group <- function(group_var,
   csv_path <- file.path(out_dir, paste0(file_prefix, "_PERMANOVA.csv"))
   write.csv(res, file = csv_path)
   
-  # -- Ordination plot -------------------------------------------------
-  scrs <- scores(nmds_fit, display = "sites")[keep, , drop = FALSE]
+  # Ordination plot ----
+  scrs <- pca_fit$x[, 1:2]
   
   plt <- if (is.null(palette)) {
     grDevices::hcl.colors(nlevels(groups), palette = "Dark 3")
@@ -129,24 +111,30 @@ permanova_by_group <- function(group_var,
   on.exit(if (dev.cur() > 1L) dev.off(), add = TRUE)
   
   par(
-    cex      = 1.2,
+    cex = 1.2,
     cex.axis = 1.0,
-    cex.lab  = 1.4,
+    cex.lab = 1.4,
     cex.main = 1.5,
-    cex.sub  = 1.2
+    cex.sub = 1.2
   )
   
-  plot(scrs, type = "n", asp = 1,
+  pc_var <- summary(pca_fit)$importance[2, 1:2] * 100
+  
+  plot(scrs, type = "n", asp = NULL,
        xlim = xlim, ylim = ylim,
-       xlab = "NMDS1", ylab = "NMDS2",
+       xlab = sprintf("PC1 (%.1f%%)", pc_var[1]), 
+       ylab = sprintf("PC2 (%.1f%%)", pc_var[2]), 
        main = plot_title,
-       sub  = sprintf(
-         "Stress = %.3f  |  R2 = %.1f%%  |  p = %.4f",
-         nmds_fit$stress, var_explained, res$model_p_val[1]))
+       sub = sprintf("R2 = %.1f%% | p = %.4f",
+                      var_explained, res$model_p_val[1]))
+  
   points(scrs, col = plt[groups], pch = 19)
+  
   ordiellipse(scrs, groups, col = plt, lwd = 2, label = TRUE)
+  
   legend("topright", legend = levels(groups), col = plt,
          pch = 19, bty = "n", title = group_var)
+  
   dev.off()
   
   message("Wrote: ", csv_path, " and ", png_path)
@@ -161,24 +149,24 @@ permanova_by_group <- function(group_var,
   ))
 }
 
-# ---- Run -------------------------------------------------------------
-
-perm_count  <- 9999
-dist_method <- "euclidean"
-
+# Run ----
 comm <- long_no_control[, 3:ncol(long_no_control)]
-d    <- vegdist(comm, method = dist_method)
 
-set.seed(42)  # reproducible NMDS starts *and* permutations
+perm_count <- 9999
 
-nmds_fit <- metaMDS(comm, distance = dist_method, k = 2, trymax = 100)
-check_stress(nmds_fit$stress)
+dist_method = "euclidean"
+
+d <- vegdist(comm, method = dist_method)
+
+pca_fit <- prcomp(comm, center = TRUE, scale. = FALSE)
+
+scrs <- pca_fit$x[, 1:2]
 
 permanova_gosner <- permanova_by_group(
   group_var = "Gosner stage",
   data = tadpoles,
   d = d,
-  nmds_fit = nmds_fit,
+  pca_fit = pca_fit,
   perm_count = perm_count,
   out_dir = "permanova"
 )
@@ -187,8 +175,10 @@ permanova_treatment <- permanova_by_group(
   group_var = "Treatment",
   data = tadpoles,
   d = d,
-  nmds_fit = nmds_fit,
+  pca_fit = pca_fit,
   perm_count = perm_count,
   out_dir = "permanova",
   palette = pal[2:4]
 )
+
+print("Gosner_PERMANOVA.R ran successfully")

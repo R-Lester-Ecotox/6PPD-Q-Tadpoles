@@ -7,7 +7,9 @@ plot_side_size <- 320
 metabolite_plots <- metabolite_boxplots(
   data = long_no_control,
   metabolites = sig_metabs,
-  cld_data = clds)
+  cld_data = clds,
+  title_size = 12,
+  wrap_width = 40)
 
 # Extract the names of significant variables that are classified as metabolites
 sig_metabs <- significant_anovas$variable[significant_anovas$Type == "Metabolite"]
@@ -27,6 +29,7 @@ metabo_plots_final <- plot_grid(
   rel_heights = c(40, plot_side_size)
 )
 
+metabo_plots_final
 # Open a Cairo PNG graphics device.
 # The output image is one plot wide and one plot high,
 CairoPNG("plots/metabolites_6PPDQ.png",
@@ -92,3 +95,6 @@ morpho_plots_final
 
 # Close the graphics device and save the PNG
 dev.off()
+
+print("Plot_Univariate_6PPDQ.R ran successfully")
+

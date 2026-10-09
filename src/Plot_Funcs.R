@@ -5,7 +5,10 @@ metabolite_boxplots <- function(data,
                                 class_col = "Treatment",
                                 metabolites,
                                 cld_data = NULL,
-                                palette = pal) {
+                                palette = pal,
+                                title_size = 22,
+                                titles = NULL,
+                                wrap_width = NULL) {
   
   # Create an empty list with one element for each metabolite.
   # The list elements are named using the metabolite names.
@@ -37,6 +40,18 @@ metabolite_boxplots <- function(data,
           rep(max(data[[i]]), 3)
       )
     }
+    # Choose the title for this plot.
+    # 1. Use a manual override if one was supplied for this metabolite
+    # 2. Otherwise auto-wrap the name if wrap_width was supplied
+    # 3. Otherwise use the metabolite name as is
+    plot_title <- if (!is.null(titles) && i %in% names(titles)) {
+      titles[[i]]
+    } else if (!is.null(wrap_width)) {
+      stringr::str_wrap(i, width = wrap_width)
+    } else {
+      i
+    }
+    
     # Create the boxplot
     plot <- ggplot(data = data,
                    aes(x = .data[[class_col]], 
@@ -66,7 +81,7 @@ metabolite_boxplots <- function(data,
       theme_cowplot(22) +
       
       # Use the metabolite/lipid name as the plot title
-      labs(title = i) +
+      labs(title = plot_title) +
       
       # Remove unnecessary plot elements because these plots will
       # eventually be assembled into a larger figure
@@ -74,7 +89,7 @@ metabolite_boxplots <- function(data,
         legend.position = "none", 
         axis.ticks = element_blank(),
         axis.title = element_blank(),
-        plot.title = element_text(hjust = 0.5)
+        plot.title = element_text(hjust = 0.5, size = title_size)
       )
     
     # Store the completed plot in the list using the metabolite name
@@ -113,3 +128,5 @@ plottext <- function(text, width) {
     nrow = 1
   )
 }
+
+print("Plot_Funcs.R ran successfully")

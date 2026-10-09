@@ -3,5 +3,8 @@
 *.xlsx
 *.png
 \permanova
+\plots
+\results
+\data
 Deleted_code.R
 .Rproj.user

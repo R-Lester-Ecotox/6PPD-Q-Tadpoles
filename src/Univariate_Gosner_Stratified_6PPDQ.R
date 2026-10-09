@@ -34,6 +34,7 @@ GS34_long_data_cols <- GS34_long %>%
 # )
 # 
 # write_csv(GS34_anovas_trimmed_bt, "trimmed_anova_gosner_stratified.csv")
+
 GS34_anovas_trimmed_bt <- read_csv("results/trimmed_anova_gosner_stratified.csv")
 
 # Sort for significant ANOVAs
@@ -43,16 +44,16 @@ GS34_significant_anovas <- GS34_anovas_trimmed_bt %>%
     Method = NA_character_,
     Type = NA_character_
   )
-# NOT RUN: No significant ANOVAs so post-hoc testing is unnecessary
+# # NOT RUN: No significant ANOVAs so post-hoc testing is unnecessary
 # # Lookup and attach the method (i.e. QToF/QQQ) and type (Metabolite/Lipid)
 # for(x in 1:nrow(GS34_significant_anovas)) {
-#   GS34_significant_anovas$Method[x] <- 
+#   GS34_significant_anovas$Method[x] <-
 #     merged$Method[merged$Name == GS34_significant_anovas$variable[x]]
-#   
-#   GS34_significant_anovas$Type[x]  <- 
+# 
+#   GS34_significant_anovas$Type[x]  <-
 #     merged$Type[merged$Name == GS34_significant_anovas$variable[x]]
 # }
-# 
+# # 
 # # Post hoc testing ----
 # GS34_sig_metabs <- GS34_significant_anovas$variable
 # 

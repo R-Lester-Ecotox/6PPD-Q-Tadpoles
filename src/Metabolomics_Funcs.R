@@ -431,7 +431,7 @@ pareto_scale <- function(data, cols = NULL) {
     data,
     cols,
     scaler = function(x) {
-      (x - mean(x, na.rm = TRUE) / sqrt(sd(x, na.rm = TRUE)))
+      (x - mean(x, na.rm = TRUE)) / sqrt(sd(x, na.rm = TRUE))
     }
   )
 }

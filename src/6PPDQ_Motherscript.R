@@ -82,7 +82,5 @@ source(file = "src/Multivariate_Control_vs_Solvent_6PPDQ.R")
 source(file = "src/Plot_Funcs.R")
 source(file = "src/Plot_Univariate_6PPDQ.R")
 
-# Perform a PERMANOVA to test if Gosner Stage has an effect
-
 # Print debugging
 print("6PPDQ_Motherscript.R ran all modules successfully!")
