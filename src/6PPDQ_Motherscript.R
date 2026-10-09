@@ -1,6 +1,3 @@
-# TO DO
-# • Run univariate stats on the WHOLE dataset
-
 # Preamble ====
 set.seed(123)
 

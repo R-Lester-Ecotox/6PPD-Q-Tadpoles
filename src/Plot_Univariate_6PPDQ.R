@@ -1,6 +1,8 @@
 # Set the width/height (in pixels) of an individual plot in the
 # final exported figures
 plot_side_size <- 320
+set_scale <- 5
+set_dpi <- 300
 
 # Main analysis metabolites-----
 # Generate boxplots for the significant metabolites
@@ -33,8 +35,9 @@ metabo_plots_final
 # Open a Cairo PNG graphics device.
 # The output image is one plot wide and one plot high,
 CairoPNG("plots/metabolites_6PPDQ.png",
-         width = plot_side_size,
-         height = plot_side_size)
+         width = plot_side_size * set_scale,
+         height = (plot_side_size + 40) * set_scale,
+         dpi = set_dpi)
 
 # Draw the assembled metabolite figure to the PNG device
 metabo_plots_final
@@ -56,10 +59,6 @@ morpho_plots <- metabolite_boxplots(
 # Generate a blank spacer plot for padding
 spacer = ggplot() + theme_void()
 
-# Create the "Morphometric indices" heading
-# Width = 3 as there will be 3 columns
-morpho_title <- plottext("Morphometric indices", width = 3)
-
 # Arrange the first three morphos into one row ...
 morpho_plots_row_1 <- plot_grid(
   plotlist = morpho_plots[1:3],
@@ -76,21 +75,21 @@ morpho_plots_row_2 <- plot_grid(
 
 # Combine the morpho heading with the two plot rows
 morpho_plots_final <- plot_grid(
-  morpho_title,
   morpho_plots_row_1,
   morpho_plots_row_2,
   ncol = 1,
-  rel_heights = c(40, plot_side_size, plot_side_size)
+  rel_heights = c(plot_side_size, plot_side_size)
 )
 
 # Open a Cairo PNG graphics device.
 # The output image is three plots wide and two plots high,
 # plus 40 pixels for the title row.
 CairoPNG("plots/Morphometric_indices.png",
-         width = plot_side_size * 3,
-         height = (plot_side_size * 2) + 40)
+         width = plot_side_size * 3 * set_scale,
+         height = plot_side_size * 2 * set_scale,
+         dpi = set_dpi)
 
-# Draw the assembled morphometri indices figure to the PNG device
+# Draw the assembled morphometric indices figure to the PNG device
 morpho_plots_final
 
 # Close the graphics device and save the PNG
