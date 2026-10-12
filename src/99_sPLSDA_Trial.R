@@ -71,7 +71,7 @@ tune.splsda <- tune.splsda(
 )
 
 # Shows the optimum keepX values according to tuning
-plot(tune.splsda, sd = T)
+plot(tune.splsda, sd = T, title)
 
 # Extract the optimal number of features per component
 select.keepX <- tune.splsda$choice.keepX
@@ -121,5 +121,6 @@ plotIndiv(
   ind.names = FALSE,
   ellipse = TRUE,
   legend = TRUE,
-  star = FALSE
+  star = FALSE,
+  title = "sPLSDA scores plot"
 )
